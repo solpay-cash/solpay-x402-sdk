@@ -35,7 +35,7 @@ npm install
 import { SolPayX402 } from '@solpay/x402-sdk';
 
 const client = new SolPayX402({
-  apiBase: 'https://api.solpay.cash',
+  apiBase: 'https://www.solpay.cash',
   merchantWallet: 'YOUR_WALLET_ADDRESS',
   network: 'solana:devnet'
 });
@@ -62,7 +62,7 @@ pip install -r requirements.txt
 from solpay_x402 import SolPayX402
 
 client = SolPayX402(
-    api_base='https://api.solpay.cash',
+    api_base='https://www.solpay.cash',
     merchant_wallet='YOUR_WALLET_ADDRESS',
     network='solana:devnet'
 )
@@ -92,7 +92,7 @@ require_once 'vendor/autoload.php';
 use SolPay\X402\Client;
 
 $client = new Client([
-    'api_base' => 'https://api.solpay.cash',
+    'api_base' => 'https://www.solpay.cash',
     'merchant_wallet' => 'YOUR_WALLET_ADDRESS',
     'network' => 'solana:devnet'
 ]);
@@ -133,7 +133,7 @@ Comprehensive documentation is available in the `/docs` directory:
 Copy `.env.example` to `.env` and configure:
 
 ```env
-SOLPAY_API_BASE=https://api.solpay.cash
+SOLPAY_API_BASE=https://www.solpay.cash
 MERCHANT_WALLET=your_solana_wallet_address
 X402_FACILITATOR_ID=facilitator.payai.network
 X402_NETWORK=solana:devnet
@@ -185,7 +185,7 @@ Import `postman/SolPay-x402-Facilitator.postman_collection.json` for API testing
 
 - **Documentation**: [/docs](./docs)
 - **Examples**: [/examples](./examples)
-- **Issues**: https://github.com/solpay/x402-sdk/issues
+- **Issues**: https://github.com/solpay-cash/solpay-x402-sdk/issues
 
 ## License
 

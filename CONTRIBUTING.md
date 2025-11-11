@@ -10,7 +10,7 @@ Be respectful, inclusive, and professional in all interactions.
 
 ### Reporting Bugs
 
-1. Check if the bug has already been reported in [Issues](https://github.com/solpay/x402-sdk/issues)
+1. Check if the bug has already been reported in [Issues](https://github.com/solpay-cash/solpay-x402-sdk/issues)
 2. If not, create a new issue with:
    - Clear title and description
    - Steps to reproduce
@@ -20,7 +20,7 @@ Be respectful, inclusive, and professional in all interactions.
 
 ### Suggesting Features
 
-1. Check if the feature has been suggested in [Issues](https://github.com/solpay/x402-sdk/issues)
+1. Check if the feature has been suggested in [Issues](https://github.com/solpay-cash/solpay-x402-sdk/issues)
 2. Create a new issue with:
    - Clear description of the feature
    - Use cases and benefits

@@ -16,7 +16,7 @@ class SolPayX402:
 
     Example:
         client = SolPayX402(
-            api_base='https://api.solpay.cash',
+            api_base='https://www.solpay.cash',
             merchant_wallet='YOUR_WALLET',
             network='solana:devnet'
         )
@@ -42,7 +42,7 @@ class SolPayX402:
         Initialize SolPayX402 client
 
         Args:
-            api_base: API base URL (e.g., https://api.solpay.cash)
+            api_base: API base URL (e.g., https://www.solpay.cash)
             merchant_wallet: Merchant Solana wallet address
             network: Network identifier (solana:devnet or solana:mainnet)
             facilitator_id: Optional x402 facilitator ID

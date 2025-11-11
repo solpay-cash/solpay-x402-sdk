@@ -19,7 +19,7 @@ yarn add @solpay/x402-sdk
 import { SolPayX402 } from '@solpay/x402-sdk';
 
 const client = new SolPayX402({
-  apiBase: 'https://api.solpay.cash',
+  apiBase: 'https://www.solpay.cash',
   merchantWallet: 'YOUR_SOLANA_WALLET_ADDRESS',
   network: 'solana:devnet', // or 'solana:mainnet'
   debug: true // Enable logging (optional)
@@ -186,7 +186,7 @@ interface PayResult {
 Create a `.env` file:
 
 ```env
-SOLPAY_API_BASE=https://api.solpay.cash
+SOLPAY_API_BASE=https://www.solpay.cash
 MERCHANT_WALLET=your_solana_wallet_address
 SOLPAY_NETWORK=solana:devnet
 SOLPAY_API_KEY=your_api_key_for_server_side
@@ -201,6 +201,6 @@ SOLPAY_API_KEY=your_api_key_for_server_side
 
 ## Support
 
-- GitHub: https://github.com/solpay/x402-sdk
+- GitHub: https://github.com/solpay-cash/solpay-x402-sdk
 - Documentation: https://docs.solpay.cash
 - Support: support@solpay.cash
