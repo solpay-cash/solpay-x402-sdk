@@ -17,7 +17,7 @@ require_once 'vendor/autoload.php';
 use SolPay\X402\Client;
 
 $client = new Client([
-    'api_base' => 'https://api.solpay.cash',
+    'api_base' => 'https://www.solpay.cash',
     'merchant_wallet' => 'YOUR_WALLET_ADDRESS',
     'network' => 'solana:devnet'
 ]);

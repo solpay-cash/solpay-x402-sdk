@@ -92,7 +92,7 @@ N/A - Initial release
 ## Support
 
 For questions, issues, or feature requests:
-- GitHub Issues: https://github.com/solpay/x402-sdk/issues
+- GitHub Issues: https://github.com/solpay-cash/solpay-x402-sdk/issues
 - Documentation: https://docs.solpay.cash
 - Email: support@solpay.cash
 

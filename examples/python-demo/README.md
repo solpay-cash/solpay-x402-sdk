@@ -11,7 +11,7 @@ pip install -r requirements.txt
 
 2. Configure environment variables (copy from root `.env.example`):
 ```bash
-export SOLPAY_API_BASE=https://api.solpay.cash
+export SOLPAY_API_BASE=https://www.solpay.cash
 export MERCHANT_WALLET=your_wallet_address
 export X402_NETWORK=solana:devnet
 ```

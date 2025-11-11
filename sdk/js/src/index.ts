@@ -12,7 +12,7 @@ import crypto from 'crypto';
  * Configuration options for SolPayX402 client
  */
 export interface SolPayX402Config {
-  /** API base URL (e.g., https://api.solpay.cash) */
+  /** API base URL (e.g., https://www.solpay.cash) */
   apiBase: string;
   /** Merchant Solana wallet address */
   merchantWallet: string;
@@ -106,7 +106,7 @@ export interface ReceiptVerification {
  * @example
  * ```typescript
  * const client = new SolPayX402({
- *   apiBase: 'https://api.solpay.cash',
+ *   apiBase: 'https://www.solpay.cash',
  *   merchantWallet: 'YOUR_WALLET',
  *   network: 'solana:devnet'
  * });
@@ -323,7 +323,7 @@ export class SolPayX402 {
    * @example
    * ```typescript
    * const verification = await client.verifyReceipt(
-   *   'https://api.solpay.cash/receipts/rec_abc123'
+   *   'https://www.solpay.cash/receipts/rec_abc123'
    * );
    *
    * if (verification.ok) {
@@ -499,7 +499,7 @@ export default SolPayX402;
  * import { createClient } from '@solpay/x402-sdk';
  *
  * const client = createClient({
- *   apiBase: 'https://api.solpay.cash',
+ *   apiBase: 'https://www.solpay.cash',
  *   merchantWallet: 'YOUR_WALLET',
  *   network: 'solana:devnet'
  * });

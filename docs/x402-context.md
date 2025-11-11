@@ -34,7 +34,7 @@ Every SolPay payment includes x402 context:
 {
   "facilitator_id": "facilitator.payai.network",
   "network": "solana:devnet",
-  "resource": "https://api.solpay.cash/api/v1/payment_intents"
+  "resource": "https://www.solpay.cash/api/v1/payment_intents"
 }
 ```
 
@@ -60,7 +60,7 @@ console.log(result.x402);
 // {
 //   facilitator_id: 'facilitator.payai.network',
 //   network: 'solana:devnet',
-//   resource: 'https://api.solpay.cash/api/v1/payment_intents'
+//   resource: 'https://www.solpay.cash/api/v1/payment_intents'
 // }
 ```
 
@@ -147,8 +147,8 @@ The SDK normalizes these formats automatically.
 
 The `resource` field specifies where payment requests should be sent. For SolPay:
 
-- Mainnet: `https://api.solpay.cash/api/v1/payment_intents`
-- Devnet: `https://api.solpay.cash/api/v1/payment_intents`
+- Mainnet: `https://www.solpay.cash/api/v1/payment_intents`
+- Devnet: `https://www.solpay.cash/api/v1/payment_intents`
 
 Both environments use the same URL; the `network` field determines which blockchain is used.
 
@@ -160,7 +160,7 @@ The SDK uses default facilitator settings:
 
 ```typescript
 const client = new SolPayX402({
-  apiBase: 'https://api.solpay.cash',
+  apiBase: 'https://www.solpay.cash',
   merchantWallet: 'YOUR_WALLET',
   network: 'solana:devnet'
 });
@@ -173,7 +173,7 @@ To use a custom facilitator:
 
 ```typescript
 const client = new SolPayX402({
-  apiBase: 'https://api.solpay.cash',
+  apiBase: 'https://www.solpay.cash',
   merchantWallet: 'YOUR_WALLET',
   network: 'solana:devnet',
   facilitatorId: 'your-facilitator.network',

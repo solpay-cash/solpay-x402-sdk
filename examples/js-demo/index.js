@@ -12,7 +12,7 @@ const { SolPayX402 } = require('../../sdk/js/dist/index.js');
 
 // Configuration
 const config = {
-  apiBase: process.env.SOLPAY_API_BASE || 'https://api.solpay.cash',
+  apiBase: process.env.SOLPAY_API_BASE || 'https://www.solpay.cash',
   merchantWallet: process.env.MERCHANT_WALLET || 'YOUR_WALLET_ADDRESS',
   network: process.env.X402_NETWORK || 'solana:devnet',
   facilitatorId: process.env.X402_FACILITATOR_ID || 'facilitator.payai.network',

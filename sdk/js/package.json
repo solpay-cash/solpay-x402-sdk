@@ -43,11 +43,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/solpay/x402-sdk.git",
+    "url": "https://github.com/solpay-cash/solpay-x402-sdk.git",
     "directory": "sdk/js"
   },
   "bugs": {
-    "url": "https://github.com/solpay/x402-sdk/issues"
+    "url": "https://github.com/solpay-cash/solpay-x402-sdk/issues"
   },
-  "homepage": "https://github.com/solpay/x402-sdk#readme"
+  "homepage": "https://github.com/solpay-cash/solpay-x402-sdk#readme"
 }

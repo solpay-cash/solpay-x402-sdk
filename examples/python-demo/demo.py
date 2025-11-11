@@ -19,7 +19,7 @@ from solpay_x402 import SolPayX402
 
 # Configuration
 config = {
-    'api_base': os.getenv('SOLPAY_API_BASE', 'https://api.solpay.cash'),
+    'api_base': os.getenv('SOLPAY_API_BASE', 'https://www.solpay.cash'),
     'merchant_wallet': os.getenv('MERCHANT_WALLET', 'YOUR_WALLET_ADDRESS'),
     'network': os.getenv('X402_NETWORK', 'solana:devnet'),
     'facilitator_id': os.getenv('X402_FACILITATOR_ID', 'facilitator.payai.network'),

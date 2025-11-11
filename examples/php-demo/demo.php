@@ -15,7 +15,7 @@ use SolPay\X402\Client;
 
 // Configuration
 $config = [
-    'api_base' => getenv('SOLPAY_API_BASE') ?: 'https://api.solpay.cash',
+    'api_base' => getenv('SOLPAY_API_BASE') ?: 'https://www.solpay.cash',
     'merchant_wallet' => getenv('MERCHANT_WALLET') ?: 'YOUR_WALLET_ADDRESS',
     'network' => getenv('X402_NETWORK') ?: 'solana:devnet',
     'facilitator_id' => getenv('X402_FACILITATOR_ID') ?: 'facilitator.payai.network',

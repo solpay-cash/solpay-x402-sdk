@@ -202,7 +202,7 @@ All examples can be run against:
 import { SolPayX402 } from '@solpay/x402-sdk';
 
 const client = new SolPayX402({
-  apiBase: 'https://api.solpay.cash',
+  apiBase: 'https://www.solpay.cash',
   merchantWallet: 'YOUR_WALLET',
   network: 'solana:devnet'
 });
@@ -218,7 +218,7 @@ const result = await client.pay({
 from solpay_x402 import SolPayX402
 
 client = SolPayX402(
-    api_base='https://api.solpay.cash',
+    api_base='https://www.solpay.cash',
     merchant_wallet='YOUR_WALLET',
     network='solana:devnet'
 )
@@ -231,7 +231,7 @@ result = client.pay(amount=10.0, asset='USDC')
 use SolPay\X402\Client;
 
 $client = new Client([
-    'api_base' => 'https://api.solpay.cash',
+    'api_base' => 'https://www.solpay.cash',
     'merchant_wallet' => 'YOUR_WALLET',
     'network' => 'solana:devnet'
 ]);
@@ -286,7 +286,7 @@ $result = $client->pay([
 
 ## Support Channels
 
-- **GitHub**: https://github.com/solpay/x402-sdk
+- **GitHub**: https://github.com/solpay-cash/solpay-x402-sdk
 - **Documentation**: https://docs.solpay.cash
 - **Email**: support@solpay.cash
 - **Issues**: GitHub Issues
@@ -319,7 +319,7 @@ MIT License - See LICENSE file
 
 For questions or support regarding this submission:
 - Email: support@solpay.cash
-- GitHub: https://github.com/solpay/x402-sdk/issues
+- GitHub: https://github.com/solpay-cash/solpay-x402-sdk/issues
 
 ---
 

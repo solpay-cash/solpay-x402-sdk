@@ -21,7 +21,7 @@ After importing, set the collection variables:
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `api_base` | API base URL | `https://api.solpay.cash` |
+| `api_base` | API base URL | `https://www.solpay.cash` |
 | `merchant_wallet` | Your Solana wallet | `YOUR_WALLET_ADDRESS` |
 | `facilitator_id` | Facilitator ID | `facilitator.payai.network` |
 | `network` | Network identifier | `solana:devnet` or `solana:mainnet` |
@@ -84,7 +84,7 @@ For testing multiple environments:
 Example Development Environment:
 ```json
 {
-  "api_base": "https://api.solpay.cash",
+  "api_base": "https://www.solpay.cash",
   "network": "solana:devnet",
   "merchant_wallet": "YOUR_DEVNET_WALLET"
 }
@@ -93,7 +93,7 @@ Example Development Environment:
 Example Production Environment:
 ```json
 {
-  "api_base": "https://api.solpay.cash",
+  "api_base": "https://www.solpay.cash",
   "network": "solana:mainnet",
   "merchant_wallet": "YOUR_MAINNET_WALLET"
 }
@@ -109,5 +109,5 @@ Example Production Environment:
 ## Support
 
 - [API Documentation](https://docs.solpay.cash)
-- [GitHub Issues](https://github.com/solpay/x402-sdk/issues)
+- [GitHub Issues](https://github.com/solpay-cash/solpay-x402-sdk/issues)
 - Email: support@solpay.cash
