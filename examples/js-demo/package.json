@@ -1,0 +1,12 @@
+{
+  "name": "solpay-x402-js-demo",
+  "version": "1.0.0",
+  "description": "JavaScript demo for SolPay x402 SDK",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@solpay/x402-sdk": "file:../../sdk/js"
+  }
+}

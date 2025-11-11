@@ -1,0 +1,299 @@
+{
+  "info": {
+    "name": "SolPay x402 Facilitator API",
+    "description": "Complete API collection for SolPay x402 payment intents with facilitator context",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12345"
+  },
+  "variable": [
+    {
+      "key": "api_base",
+      "value": "https://api.solpay.cash",
+      "type": "string"
+    },
+    {
+      "key": "merchant_wallet",
+      "value": "YOUR_SOLANA_WALLET_ADDRESS",
+      "type": "string"
+    },
+    {
+      "key": "facilitator_id",
+      "value": "facilitator.payai.network",
+      "type": "string"
+    },
+    {
+      "key": "network",
+      "value": "solana:devnet",
+      "type": "string"
+    },
+    {
+      "key": "api_key",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "intent_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Payment Intents",
+      "item": [
+        {
+          "name": "Create Payment Intent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{api_key}}",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 10.0,\n  \"asset\": \"USDC\",\n  \"merchant_wallet\": \"{{merchant_wallet}}\",\n  \"customer_email\": \"customer@example.com\",\n  \"metadata\": {\n    \"order_id\": \"order_12345\",\n    \"product\": \"Premium Subscription\"\n  },\n  \"x402_context\": {\n    \"facilitator_id\": \"{{facilitator_id}}\",\n    \"network\": \"{{network}}\",\n    \"resource\": \"{{api_base}}/api/v1/payment_intents\"\n  },\n  \"success_url\": \"https://yoursite.com/success\",\n  \"cancel_url\": \"https://yoursite.com/cancel\"\n}"
+            },
+            "url": {
+              "raw": "{{api_base}}/api/v1/payment_intents",
+              "host": ["{{api_base}}"],
+              "path": ["api", "v1", "payment_intents"]
+            },
+            "description": "Create a new payment intent with x402 facilitator context"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Payment Intent",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{api_key}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{api_base}}/api/v1/payment_intents/{{intent_id}}",
+              "host": ["{{api_base}}"],
+              "path": ["api", "v1", "payment_intents", "{{intent_id}}"]
+            },
+            "description": "Get payment intent by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Confirm Payment Intent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{api_key}}",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transaction_signature\": \"4xY7Z...\"\n}"
+            },
+            "url": {
+              "raw": "{{api_base}}/api/v1/payment_intents/{{intent_id}}/confirm",
+              "host": ["{{api_base}}"],
+              "path": ["api", "v1", "payment_intents", "{{intent_id}}", "confirm"]
+            },
+            "description": "Confirm a payment intent with transaction signature"
+          },
+          "response": []
+        },
+        {
+          "name": "List Payment Intents",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{api_base}}/api/v1/payment_intents?merchant_wallet={{merchant_wallet}}&limit=10",
+              "host": ["{{api_base}}"],
+              "path": ["api", "v1", "payment_intents"],
+              "query": [
+                {
+                  "key": "merchant_wallet",
+                  "value": "{{merchant_wallet}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "succeeded",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "List payment intents for a merchant"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Receipts",
+      "item": [
+        {
+          "name": "Get Receipt",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_base}}/api/v1/receipts/:receipt_id",
+              "host": ["{{api_base}}"],
+              "path": ["api", "v1", "receipts", ":receipt_id"],
+              "variable": [
+                {
+                  "key": "receipt_id",
+                  "value": "rec_abc123"
+                }
+              ]
+            },
+            "description": "Get receipt by ID (publicly accessible)"
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Receipt Hash",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const CryptoJS = require('crypto-js');",
+                  "",
+                  "// Get receipt from response",
+                  "const receipt = pm.response.json();",
+                  "const reportedHash = receipt.sha256_hash;",
+                  "",
+                  "// Remove hash field",
+                  "const canonical = {...receipt};",
+                  "delete canonical.sha256_hash;",
+                  "delete canonical.hash;",
+                  "",
+                  "// Compute canonical JSON",
+                  "function canonicalJSON(obj) {",
+                  "    if (obj === null) return 'null';",
+                  "    if (typeof obj !== 'object') return JSON.stringify(obj);",
+                  "    if (Array.isArray(obj)) {",
+                  "        return '[' + obj.map(canonicalJSON).join(',') + ']';",
+                  "    }",
+                  "    const keys = Object.keys(obj).sort();",
+                  "    const pairs = keys.map(key => `\"${key}\":${canonicalJSON(obj[key])}`);",
+                  "    return '{' + pairs.join(',') + '}';",
+                  "}",
+                  "",
+                  "const canonicalJson = canonicalJSON(canonical);",
+                  "",
+                  "// Compute SHA-256",
+                  "const computedHash = CryptoJS.SHA256(canonicalJson).toString();",
+                  "",
+                  "// Verify",
+                  "console.log('Computed hash:', computedHash);",
+                  "console.log('Reported hash:', reportedHash);",
+                  "",
+                  "pm.test('Receipt hash is valid', function () {",
+                  "    pm.expect(computedHash).to.equal(reportedHash);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_base}}/api/v1/receipts/:receipt_id",
+              "host": ["{{api_base}}"],
+              "path": ["api", "v1", "receipts", ":receipt_id"],
+              "variable": [
+                {
+                  "key": "receipt_id",
+                  "value": "rec_abc123"
+                }
+              ]
+            },
+            "description": "Verify receipt SHA-256 hash using test script"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "Payment Succeeded Webhook (Example)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-SolPay-Signature",
+                "value": "webhook_signature_here"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"payment_intent.succeeded\",\n  \"data\": {\n    \"id\": \"pi_abc123\",\n    \"status\": \"succeeded\",\n    \"amount\": 10.0,\n    \"asset\": \"USDC\",\n    \"merchant_wallet\": \"{{merchant_wallet}}\",\n    \"receipt\": {\n      \"id\": \"rec_xyz789\",\n      \"url\": \"{{api_base}}/api/v1/receipts/rec_xyz789\",\n      \"sha256_hash\": \"a1b2c3d4...\",\n      \"transaction_signature\": \"4xY7Z...\",\n      \"memo\": \"SolPay:pi_abc123:merchant\"\n    },\n    \"settlement\": {\n      \"merchant_received\": 9.7,\n      \"treasury_fee\": 0.2,\n      \"facilitator_fee\": 0.1\n    },\n    \"x402_context\": {\n      \"facilitator_id\": \"{{facilitator_id}}\",\n      \"network\": \"{{network}}\",\n      \"resource\": \"{{api_base}}/api/v1/payment_intents\"\n    },\n    \"created_at\": \"2025-01-15T10:30:00Z\"\n  }\n}"
+            },
+            "url": {
+              "raw": "https://yoursite.com/webhooks/solpay",
+              "protocol": "https",
+              "host": ["yoursite", "com"],
+              "path": ["webhooks", "solpay"]
+            },
+            "description": "Example webhook payload for payment succeeded event"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "API Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_base}}/health",
+              "host": ["{{api_base}}"],
+              "path": ["health"]
+            },
+            "description": "Check API health status"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

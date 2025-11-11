@@ -1,0 +1,31 @@
+{
+  "name": "solpay/x402-sdk",
+  "description": "SolPay x402 SDK - One-line integration for Solana payments with x402 facilitator context",
+  "type": "library",
+  "license": "MIT",
+  "keywords": ["solana", "payment", "x402", "solpay", "cryptocurrency", "blockchain"],
+  "authors": [
+    {
+      "name": "SolPay Team",
+      "email": "support@solpay.cash"
+    }
+  ],
+  "require": {
+    "php": ">=7.4",
+    "ext-json": "*",
+    "ext-curl": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "SolPay\\X402\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "SolPay\\X402\\Tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5"
+  }
+}
