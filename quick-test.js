@@ -54,6 +54,7 @@ async function test() {
       asset: 'USDC',
       customerEmail: 'test@example.com',
       metadata: {
+        description: 'Test payment via quick-test.js',
         test: true,
         timestamp: new Date().toISOString()
       }

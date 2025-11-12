@@ -4,6 +4,10 @@
 
 This SDK provides a simple, unified interface for integrating SolPay payments with x402 protocol support across JavaScript/TypeScript, Python, and PHP.
 
+## 🎥 Video Demo
+
+Watch the SDK in action: [SolPay x402 SDK Demo](https://www.loom.com/share/27b7acbfe50e485da116c9f238d70443)
+
 ## Features
 
 - ✅ Create payment intents with dynamic amounts
