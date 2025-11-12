@@ -271,14 +271,33 @@ class Client
      */
     private function createPaymentIntent(array $params): array
     {
+        // Build metadata with SDK info
+        $metadata = $params['metadata'] ?? [];
+        $metadata['sdk'] = '@solpay/x402-sdk-php';
+        $metadata['sdk_version'] = '1.0.0';
+
         $payload = [
-            'merchant_wallet' => $this->merchantWallet,
             'amount' => (float) $params['amount'],
-            'token' => $params['token'],
-            'network' => $this->network,
+            'currency' => $params['asset'] ?? $params['token'], // Support both 'asset' (new) and 'token' (legacy)
+            'merchant_wallet' => $this->merchantWallet,
+            'customer_email' => $params['customer_email'] ?? null,
+            'metadata' => $metadata,
+            'x402_context' => [
+                'facilitator_id' => $this->facilitatorId ?? 'facilitator.payai.network',
+                'network' => $this->network,  // 🔒 CRITICAL: Must include network for security
+                'resource' => $this->apiBase . '/api/v1/payment_intents',
+            ],
         ];
 
-        // Add optional parameters
+        // Add optional URLs
+        if (!empty($params['success_url'])) {
+            $payload['success_url'] = $params['success_url'];
+        }
+        if (!empty($params['cancel_url'])) {
+            $payload['cancel_url'] = $params['cancel_url'];
+        }
+
+        // Add legacy optional parameters for backward compatibility
         if (!empty($params['reference'])) {
             $payload['reference'] = $params['reference'];
         }
@@ -291,19 +310,8 @@ class Client
         if (!empty($params['memo'])) {
             $payload['memo'] = $params['memo'];
         }
-        if (!empty($params['metadata'])) {
-            $payload['metadata'] = $params['metadata'];
-        }
 
-        // Add facilitator information if configured
-        if ($this->facilitatorId !== null) {
-            $payload['facilitator_id'] = $this->facilitatorId;
-        }
-        if ($this->facilitatorUrl !== null) {
-            $payload['facilitator_url'] = $this->facilitatorUrl;
-        }
-
-        return $this->request('POST', '/payment-intents', $payload);
+        return $this->request('POST', '/api/v1/payment_intents', $payload);
     }
 
     /**
@@ -412,6 +420,7 @@ class Client
         $headers = [
             'Content-Type: application/json',
             'Accept: application/json',
+            'x-merchant-wallet: ' . $this->merchantWallet,
         ];
 
         if ($this->apiKey !== null) {
@@ -489,4 +498,64 @@ class Client
 
         error_log(sprintf('[%s] SolPay\X402\Client: %s%s', $timestamp, $message, $contextStr));
     }
+}
+
+/**
+ * Generate a hosted payment URL for a Payment Intent
+ *
+ * @param string $baseUrl Base URL of the hosted payment page (e.g., 'https://www.solpay.cash')
+ * @param string $intentId Payment intent ID (must start with 'pi_')
+ *
+ * @return string Full URL to the hosted payment page
+ *
+ * @throws \InvalidArgumentException If intent ID format is invalid
+ *
+ * @example
+ * ```php
+ * $payment = $client->pay(['amount' => 100000, 'asset' => 'USDC']);
+ * $hostedUrl = \SolPay\X402\getHostedPaymentUrl('https://www.solpay.cash', $payment['intent_id']);
+ * echo "Pay here: $hostedUrl\n";
+ * // => https://www.solpay.cash/pay/pi_abc123
+ * ```
+ */
+function getHostedPaymentUrl(string $baseUrl, string $intentId): string
+{
+    // Remove trailing slash from baseUrl
+    $cleanBase = rtrim($baseUrl, '/');
+
+    // Validate intentId format
+    if (strpos($intentId, 'pi_') !== 0) {
+        throw new \InvalidArgumentException('Invalid payment intent ID: must start with "pi_"');
+    }
+
+    return $cleanBase . '/pay/' . $intentId;
+}
+
+/**
+ * Generate a hosted checkout URL for a Checkout Session
+ *
+ * @param string $baseUrl Base URL of the hosted checkout page (e.g., 'https://www.solpay.cash')
+ * @param string $sessionId Checkout session ID (must start with 'cs_')
+ *
+ * @return string Full URL to the hosted checkout page
+ *
+ * @throws \InvalidArgumentException If session ID format is invalid
+ *
+ * @example
+ * ```php
+ * $url = \SolPay\X402\getHostedCheckoutUrl('https://www.solpay.cash', 'cs_abc123');
+ * echo $url; // => https://www.solpay.cash/checkout/cs_abc123
+ * ```
+ */
+function getHostedCheckoutUrl(string $baseUrl, string $sessionId): string
+{
+    // Remove trailing slash from baseUrl
+    $cleanBase = rtrim($baseUrl, '/');
+
+    // Validate sessionId format
+    if (strpos($sessionId, 'cs_') !== 0) {
+        throw new \InvalidArgumentException('Invalid checkout session ID: must start with "cs_"');
+    }
+
+    return $cleanBase . '/checkout/' . $sessionId;
 }

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The SolPay x402 SDK provides a simple, unified interface for accepting Solana payments with x402 protocol support. The SDK abstracts away the complexity of blockchain interactions while maintaining full transparency and verifiability through receipt attestation.
+The SolPay x402 SDK provides a simple, unified interface for accepting Solana payments with x402 protocol support. The SDK abstracts away the complexity of blockchain interactions while maintaining full transparency and verifiability through cryptographic receipt verification.
 
 ## Architecture
 
@@ -45,12 +45,12 @@ The x402 protocol enables HTTP 402 "Payment Required" responses for micropayment
 
 This context ensures payments are properly attributed and routed.
 
-### Receipt Attestation
+### Receipt Verification
 
 Every completed payment generates a cryptographically verifiable receipt:
-- **SHA-256 Hash**: Computed over canonical JSON (sorted keys, no whitespace)
-- **Transaction Signature**: Solana blockchain transaction ID
-- **Memo**: On-chain attestation linking payment to merchant
+- **SHA-256 Hash**: Computed over canonical JSON (sorted keys, no whitespace) for tamper-proof verification
+- **Transaction Signature**: Solana blockchain payment transaction ID for on-chain verification
+- **Memo**: Included in payment transaction linking payment to merchant
 - **Settlement Details**: Breakdown of fees and merchant receives
 
 ### Fee Structure

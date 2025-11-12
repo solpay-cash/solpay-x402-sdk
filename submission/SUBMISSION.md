@@ -19,7 +19,7 @@ The SolPay x402 SDK is a comprehensive, multi-language SDK for integrating Solan
 - ✅ x402 facilitator context integration
 - ✅ Transparent fee structure (server-side calculations only)
 - ✅ Complete receipt and settlement information
-- ✅ Memo attestation support
+- ✅ SHA-256 hash-based receipt verification
 
 ### 3. Developer Experience
 - One-line payment creation

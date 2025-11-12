@@ -186,7 +186,7 @@ class SolPayX402:
         url = f"{self.api_base}/api/v1/payment_intents"
         body = {
             'amount': params['amount'],
-            'asset': params['asset'],
+            'currency': params['asset'],
             'merchant_wallet': self.merchant_wallet,
             'customer_email': params.get('customer_email'),
             'metadata': {**(params.get('metadata') or {}), 'sdk': '@solpay/x402-sdk-python', 'sdk_version': '1.0.0'},
@@ -194,7 +194,10 @@ class SolPayX402:
             'success_url': params.get('success_url'),
             'cancel_url': params.get('cancel_url')
         }
-        headers = {'Content-Type': 'application/json'}
+        headers = {
+            'Content-Type': 'application/json',
+            'x-merchant-wallet': self.merchant_wallet
+        }
         if self.api_key:
             headers['Authorization'] = f'Bearer {self.api_key}'
         response = requests.post(url, headers=headers, json=body)
@@ -235,3 +238,56 @@ class SolPayX402:
 def create_client(**config) -> SolPayX402:
     """Helper function to create a client instance"""
     return SolPayX402(**config)
+
+
+def get_hosted_payment_url(base_url: str, intent_id: str) -> str:
+    """
+    Generate a hosted payment URL for a Payment Intent
+
+    Args:
+        base_url: Base URL of the hosted payment page (e.g., 'https://www.solpay.cash')
+        intent_id: Payment intent ID (must start with 'pi_')
+
+    Returns:
+        Full URL to the hosted payment page
+
+    Example:
+        >>> payment = client.pay(amount=100000, asset='USDC')
+        >>> hosted_url = get_hosted_payment_url('https://www.solpay.cash', payment['intent_id'])
+        >>> print(f'Pay here: {hosted_url}')
+        Pay here: https://www.solpay.cash/pay/pi_abc123
+    """
+    # Remove trailing slash from base_url
+    clean_base = base_url.rstrip('/')
+
+    # Validate intent_id format
+    if not intent_id.startswith('pi_'):
+        raise ValueError('Invalid payment intent ID: must start with "pi_"')
+
+    return f'{clean_base}/pay/{intent_id}'
+
+
+def get_hosted_checkout_url(base_url: str, session_id: str) -> str:
+    """
+    Generate a hosted checkout URL for a Checkout Session
+
+    Args:
+        base_url: Base URL of the hosted checkout page (e.g., 'https://www.solpay.cash')
+        session_id: Checkout session ID (must start with 'cs_')
+
+    Returns:
+        Full URL to the hosted checkout page
+
+    Example:
+        >>> url = get_hosted_checkout_url('https://www.solpay.cash', 'cs_abc123')
+        >>> print(url)
+        https://www.solpay.cash/checkout/cs_abc123
+    """
+    # Remove trailing slash from base_url
+    clean_base = base_url.rstrip('/')
+
+    # Validate session_id format
+    if not session_id.startswith('cs_'):
+        raise ValueError('Invalid checkout session ID: must start with "cs_"')
+
+    return f'{clean_base}/checkout/{session_id}'

@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for multiple assets (USDC, SOL, etc.)
 - Transparent fee structure (no client-side calculations)
 - Full receipt and settlement information
-- Memo attestation support
+- SHA-256 hash-based receipt verification
 - Success/cancel URL redirects
 - Customer email tracking
 - Metadata support for custom integrations
