@@ -1,8 +1,10 @@
-# Receipts & Memo Attestation
+# Receipt Verification
 
 ## Overview
 
 SolPay uses cryptographic receipt verification to ensure payment authenticity. Every completed payment generates a receipt that can be independently verified using SHA-256 hashing over canonical JSON.
+
+**Security Model:** Receipts are stored on the SolPay server with tamper-proof SHA-256 hash verification. The payment transaction signature can be verified directly on the Solana blockchain for additional assurance.
 
 ## Receipt Structure
 
@@ -129,7 +131,7 @@ function canonicalJSON(obj) {
 
 ### Purpose
 
-The memo field provides on-chain attestation of the payment. It's included in the Solana transaction and links the payment to:
+The memo field is included in the Solana payment transaction and links the payment to:
 - Payment intent ID
 - Merchant identifier
 - Optional metadata
@@ -148,9 +150,11 @@ SolPay:pi_abc123:merchant_xyz
 ### Verification
 
 The memo can be verified on-chain by:
-1. Fetching the transaction using `transaction_signature`
+1. Fetching the payment transaction using `transaction_signature`
 2. Extracting the memo from transaction instructions
 3. Comparing with expected format
+
+**Note:** The memo is part of the payment transaction itself, not a separate attestation transaction.
 
 ## Settlement Details
 
@@ -183,9 +187,9 @@ Anyone with the receipt can verify its authenticity without contacting SolPay. T
 
 ### Blockchain-Backed
 
-Transaction signatures can be verified on the Solana blockchain for additional assurance. The on-chain transaction includes:
+Payment transaction signatures can be verified on the Solana blockchain for additional assurance. The on-chain payment transaction includes:
 - Transfer of exact amount
-- Memo attestation
+- Memo field linking to payment intent
 - Timestamp
 - Sender and recipient addresses
 
@@ -220,21 +224,24 @@ Keep a copy of all receipts for:
 - Dispute resolution
 - Audit trails
 
-### Verify On-Chain (Optional)
+### Verify Payment Transaction On-Chain (Optional)
 
-For high-value transactions, verify the transaction on Solana:
+For high-value transactions, verify the payment transaction signature on Solana:
 
 ```typescript
 import { Connection } from '@solana/web3.js';
 
-async function verifyOnChain(signature) {
+async function verifyPaymentOnChain(transactionSignature) {
   const connection = new Connection('https://api.mainnet-beta.solana.com');
-  const tx = await connection.getTransaction(signature);
+  const tx = await connection.getTransaction(transactionSignature);
 
   // Verify transaction exists and succeeded
   if (!tx || tx.meta?.err) {
-    throw new Error('Transaction not found or failed');
+    throw new Error('Payment transaction not found or failed');
   }
+
+  // Extract transfer amount, sender, recipient, and memo from transaction
+  // Verify they match the receipt details
 
   return tx;
 }

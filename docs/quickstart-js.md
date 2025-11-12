@@ -2,6 +2,39 @@
 
 Get started with SolPay x402 payments in JavaScript/TypeScript.
 
+## 🔒 Security: Network Parameter
+
+**CRITICAL SECURITY REQUIREMENT:**
+
+The SDK automatically includes the `network` parameter in all payment requests. This is a **critical security feature** that prevents payment fraud.
+
+### Why This Matters
+
+Without the network parameter, an attacker could:
+1. Intercept a payment request intended for mainnet (real USDC)
+2. Pay with worthless devnet tokens instead
+3. Server might default to devnet verification
+4. Payment succeeds, merchant loses real money
+
+### How the SDK Protects You
+
+The SDK automatically includes `network` in the `x402_context` when creating payment intents:
+
+```typescript
+// SDK automatically adds this to your payment request:
+{
+  x402_context: {
+    facilitator_id: 'facilitator.payai.network',
+    network: 'solana:devnet',  // ← CRITICAL: Explicitly set
+    resource: 'https://www.solpay.cash/api/v1/payment_intents'
+  }
+}
+```
+
+**See [SECURITY.md](../SECURITY.md) for complete security guidelines.**
+
+---
+
 ## Installation
 
 ```bash
@@ -191,6 +224,73 @@ MERCHANT_WALLET=your_solana_wallet_address
 SOLPAY_NETWORK=solana:devnet
 SOLPAY_API_KEY=your_api_key_for_server_side
 ```
+
+## Hosted Payment Pages
+
+The SDK provides two types of hosted payment flows:
+
+### Payment Intents (Flow-B) - `/pay/:piId`
+
+For direct payment intents, use the hosted payment page:
+
+```typescript
+import { getHostedPaymentUrl } from '@solpay/x402-sdk';
+
+const payment = await client.pay({
+  amount: 1000000, // 1 USDC (amounts in micro-units)
+  asset: 'USDC'
+});
+
+// Generate hosted payment URL
+const hostedUrl = getHostedPaymentUrl('https://www.solpay.cash', payment.intentId);
+console.log('Pay here:', hostedUrl);
+// => https://www.solpay.cash/pay/pi_abc123
+
+// Direct customer to this URL to complete payment
+```
+
+**Features of `/pay/:piId`:**
+- Displays payment amount and currency
+- Shows merchant wallet
+- Fee breakdown (processor fee in bps and amount)
+- Settlement details (merchant amount)
+- Receipt verification with canonical JSON and SHA-256 hashing
+- Link to Solana explorer for payment transaction
+
+### Checkout Sessions (Flow-A) - `/checkout/:csId`
+
+For price-based checkout sessions:
+
+```typescript
+import { getHostedCheckoutUrl } from '@solpay/x402-sdk';
+
+const url = getHostedCheckoutUrl('https://www.solpay.cash', 'cs_abc123');
+// => https://www.solpay.cash/checkout/cs_abc123
+```
+
+### Environment Variables
+
+Configure your hosted pages with environment variables:
+
+```bash
+# API endpoint
+SOLPAY_API_BASE=https://www.solpay.cash
+
+# UI base for hosted pages
+SOLPAY_UI_BASE=https://www.solpay.cash
+
+# For local development
+SOLPAY_API_BASE=http://localhost:3002
+SOLPAY_UI_BASE=http://localhost:3002
+```
+
+### Important Notes
+
+- **Amount Format**: Amounts must be in smallest units (micro-USDC for USDC with 6 decimals)
+  - 1 USDC = 1,000,000 micro-USDC
+  - 0.1 USDC = 100,000 micro-USDC
+- **Network Detection**: Explorer links auto-detect devnet/mainnet from `x402.network`
+- **Receipt Verification**: Receipts include SHA-256 hash for tamper-proof verification
 
 ## Next Steps
 

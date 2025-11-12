@@ -71,10 +71,11 @@ export interface PayResult {
     signature: string;
   };
   /** Settlement information */
-  settlement?: {
-    merchant_received: number;
-    treasury_fee: number;
-    facilitator_fee?: number;
+  settlement?: any;
+  /** Fee breakdown */
+  fees?: {
+    processor_fee_bps: number;
+    processor_fee_amount: number;
   };
   /** x402 context */
   x402?: {
@@ -176,9 +177,9 @@ export class SolPayX402 {
         status: intent.status,
         amount: {
           requested: params.amount,
-          total: intent.amount_required || params.amount,
-          fees: intent.fees_total || 0,
-          net: intent.merchant_receives || params.amount,
+          total: intent.amount || params.amount,
+          fees: intent.amount_fees || intent.fees?.processor_fee_amount || 0,
+          net: intent.amount_merchant || intent.settlement?.merchant_amount || params.amount,
         },
         receipt: intent.receipt ? {
           url: intent.receipt.url,
@@ -187,6 +188,7 @@ export class SolPayX402 {
           signature: intent.receipt.transaction_signature,
         } : undefined,
         settlement: intent.settlement,
+        fees: intent.fees,
         x402: intent.x402_context,
       };
     } catch (error) {
@@ -206,7 +208,7 @@ export class SolPayX402 {
 
     const body = {
       amount: params.amount,
-      asset: params.asset,
+      currency: params.asset,
       merchant_wallet: this.config.merchantWallet,
       customer_email: params.customerEmail,
       metadata: {
@@ -225,6 +227,7 @@ export class SolPayX402 {
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      'x-merchant-wallet': this.config.merchantWallet,
     };
 
     if (this.config.apiKey) {
@@ -238,11 +241,11 @@ export class SolPayX402 {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' })) as any;
       throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
     }
 
-    return response.json();
+    return response.json() as any;
   }
 
   /**
@@ -283,21 +286,21 @@ export class SolPayX402 {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' })) as any;
         throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const intent = await response.json();
+      const intent = await response.json() as any;
 
       return {
         intentId: intent.id,
         paymentUrl: intent.payment_url || `${this.config.apiBase}/checkout/${intent.id}`,
         status: intent.status,
         amount: {
-          requested: intent.amount_requested || 0,
-          total: intent.amount_required || 0,
-          fees: intent.fees_total || 0,
-          net: intent.merchant_receives || 0,
+          requested: intent.amount || 0,
+          total: intent.amount || 0,
+          fees: intent.amount_fees || intent.fees?.processor_fee_amount || 0,
+          net: intent.amount_merchant || intent.settlement?.merchant_amount || 0,
         },
         receipt: intent.receipt ? {
           url: intent.receipt.url,
@@ -306,6 +309,7 @@ export class SolPayX402 {
           signature: intent.receipt.transaction_signature,
         } : undefined,
         settlement: intent.settlement,
+        fees: intent.fees,
         x402: intent.x402_context,
       };
     } catch (error) {
@@ -344,7 +348,7 @@ export class SolPayX402 {
         throw new Error(`Failed to fetch receipt: ${response.statusText}`);
       }
 
-      const receipt = await response.json();
+      const receipt = await response.json() as any;
 
       // Extract reported hash
       const reportedHash = receipt.sha256_hash || receipt.hash;
@@ -452,11 +456,11 @@ export class SolPayX402 {
       const response = await fetch(url, { headers });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' })) as any;
         throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
       }
 
-      return response.json();
+      return response.json() as any;
     } catch (error) {
       this.log('Get payment intent error:', error);
       throw this.handleError(error);
@@ -507,4 +511,60 @@ export default SolPayX402;
  */
 export function createClient(config: SolPayX402Config): SolPayX402 {
   return new SolPayX402(config);
+}
+
+/**
+ * Generate a hosted payment URL for a Payment Intent
+ *
+ * @param baseUrl - Base URL of the hosted payment page (e.g., 'https://www.solpay.cash')
+ * @param intentId - Payment intent ID (must start with 'pi_')
+ * @returns Full URL to the hosted payment page
+ *
+ * @example
+ * ```typescript
+ * import { getHostedPaymentUrl } from '@solpay/x402-sdk';
+ *
+ * const payment = await client.pay({ amount: 100000, asset: 'USDC' });
+ * const hostedUrl = getHostedPaymentUrl('https://www.solpay.cash', payment.intentId);
+ * console.log('Pay here:', hostedUrl);
+ * // => https://www.solpay.cash/pay/pi_abc123
+ * ```
+ */
+export function getHostedPaymentUrl(baseUrl: string, intentId: string): string {
+  // Remove trailing slash from baseUrl
+  const cleanBase = baseUrl.replace(/\/$/, '');
+
+  // Validate intentId format
+  if (!intentId.startsWith('pi_')) {
+    throw new Error('Invalid payment intent ID: must start with "pi_"');
+  }
+
+  return `${cleanBase}/pay/${intentId}`;
+}
+
+/**
+ * Generate a hosted checkout URL for a Checkout Session
+ *
+ * @param baseUrl - Base URL of the hosted checkout page (e.g., 'https://www.solpay.cash')
+ * @param sessionId - Checkout session ID (must start with 'cs_')
+ * @returns Full URL to the hosted checkout page
+ *
+ * @example
+ * ```typescript
+ * import { getHostedCheckoutUrl } from '@solpay/x402-sdk';
+ *
+ * const url = getHostedCheckoutUrl('https://www.solpay.cash', 'cs_abc123');
+ * // => https://www.solpay.cash/checkout/cs_abc123
+ * ```
+ */
+export function getHostedCheckoutUrl(baseUrl: string, sessionId: string): string {
+  // Remove trailing slash from baseUrl
+  const cleanBase = baseUrl.replace(/\/$/, '');
+
+  // Validate sessionId format
+  if (!sessionId.startsWith('cs_')) {
+    throw new Error('Invalid checkout session ID: must start with "cs_"');
+  }
+
+  return `${cleanBase}/checkout/${sessionId}`;
 }

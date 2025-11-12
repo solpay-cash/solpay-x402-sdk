@@ -2,6 +2,39 @@
 
 Get started with SolPay x402 payments in PHP.
 
+## 🔒 Security: Network Parameter
+
+**CRITICAL SECURITY REQUIREMENT:**
+
+The SDK automatically includes the `network` parameter in all payment requests. This is a **critical security feature** that prevents payment fraud.
+
+### Why This Matters
+
+Without the network parameter, an attacker could:
+1. Intercept a payment request intended for mainnet (real USDC)
+2. Pay with worthless devnet tokens instead
+3. Server might default to devnet verification
+4. Payment succeeds, merchant loses real money
+
+### How the SDK Protects You
+
+The SDK automatically includes `network` in the `x402_context` when creating payment intents:
+
+```php
+// SDK automatically adds this to your payment request:
+[
+  'x402_context' => [
+    'facilitator_id' => 'facilitator.payai.network',
+    'network' => 'solana:devnet',  // ← CRITICAL: Explicitly set
+    'resource' => 'https://www.solpay.cash/api/v1/payment_intents'
+  ]
+]
+```
+
+**See [SECURITY.md](../SECURITY.md) for complete security guidelines.**
+
+---
+
 ## Installation
 
 ```bash

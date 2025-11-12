@@ -12,7 +12,13 @@ This SDK provides a simple, unified interface for integrating SolPay payments wi
 - ✅ Support for Solana devnet and mainnet
 - ✅ No client-side fee calculations - trust API values
 - ✅ Full receipt and settlement info
-- ✅ Memo attestation support
+- ✅ SHA-256 hash-based receipt verification
+
+## 🔒 Security Notice
+
+**CRITICAL:** The SDK automatically includes the `network` parameter in all payment requests to prevent payment fraud. This parameter ensures payments are verified on the correct network (devnet vs mainnet) and prevents attackers from paying with worthless devnet tokens when mainnet tokens are expected.
+
+**Never modify the SDK to remove the network parameter.** See [SECURITY.md](./SECURITY.md) for complete security guidelines and attack scenarios.
 
 ## Supported Languages
 
@@ -107,6 +113,50 @@ $result = $client->pay([
 echo "Payment URL: " . $result['payment_url'] . "\n";
 echo "Receipt: " . json_encode($result['receipt']) . "\n";
 ```
+
+## Hosted Payment Pages
+
+The SDK supports two payment flows with hosted pages:
+
+### Payment Intents (Flow-B)
+- **Route**: `/pay/:piId` (Payment Intent IDs start with `pi_`)
+- **Use case**: Direct payment requests with fixed amounts
+- **Features**: Fee breakdown, settlement details, receipt verification
+
+### Checkout Sessions (Flow-A)
+- **Route**: `/checkout/:csId` (Checkout Session IDs start with `cs_`)
+- **Use case**: Price-based checkout with product catalogs
+- **Features**: Product selection, dynamic pricing
+
+```typescript
+import { getHostedPaymentUrl } from '@solpay/x402-sdk';
+
+// Generate hosted payment URL
+const payment = await client.pay({ amount: 1000000, asset: 'USDC' });
+const hostedUrl = getHostedPaymentUrl('https://www.solpay.cash', payment.intentId);
+// => https://www.solpay.cash/pay/pi_abc123
+```
+
+## Quick Test
+
+Test the SDK quickly without setting up a full project:
+
+```bash
+# Test with your wallet address
+node quick-test.js YOUR_SOLANA_WALLET_ADDRESS
+
+# Test against production
+SOLPAY_API_BASE=https://www.solpay.cash \
+SOLPAY_UI_BASE=https://www.solpay.cash \
+node quick-test.js YOUR_WALLET_ADDRESS
+
+# Test against local development
+SOLPAY_API_BASE=http://localhost:3002 \
+SOLPAY_UI_BASE=http://localhost:3002 \
+node quick-test.js YOUR_WALLET_ADDRESS
+```
+
+This will create a test payment intent and display the hosted payment URL.
 
 ## Installation
 

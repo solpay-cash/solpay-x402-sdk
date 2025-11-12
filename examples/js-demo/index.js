@@ -3,12 +3,13 @@
  *
  * This example demonstrates:
  * 1. Creating a payment intent
- * 2. Getting payment intent status
- * 3. Confirming a payment (simulated)
- * 4. Verifying a receipt
+ * 2. Displaying the hosted payment URL
+ * 3. Getting payment intent status
+ * 4. Confirming a payment (simulated)
+ * 5. Verifying a receipt
  */
 
-const { SolPayX402 } = require('../../sdk/js/dist/index.js');
+const { SolPayX402, getHostedPaymentUrl } = require('../../sdk/js/dist/index.js');
 
 // Configuration
 const config = {
@@ -19,6 +20,9 @@ const config = {
   debug: true
 };
 
+// UI base URL for hosted payment pages
+const uiBase = process.env.SOLPAY_UI_BASE || 'https://www.solpay.cash';
+
 async function main() {
   console.log('=== SolPay x402 SDK Demo ===\n');
 
@@ -26,28 +30,37 @@ async function main() {
   const client = new SolPayX402(config);
 
   try {
-    // 1. Create payment intent
+    // 1. Create payment intent (amounts in smallest units: 1 USDC = 1,000,000 micro-USDC)
     console.log('1. Creating payment intent...');
     const payment = await client.pay({
-      amount: 10.0,
+      amount: 1000000, // 1 USDC (6 decimals)
       asset: 'USDC',
       customerEmail: 'customer@example.com',
       metadata: {
         order_id: 'order_12345',
         product: 'Premium Subscription'
-      },
-      successUrl: 'https://yoursite.com/success',
-      cancelUrl: 'https://yoursite.com/cancel'
+      }
     });
 
     console.log('✅ Payment intent created!');
     console.log('   Intent ID:', payment.intentId);
-    console.log('   Payment URL:', payment.paymentUrl);
     console.log('   Status:', payment.status);
-    console.log('   Amount:', JSON.stringify(payment.amount, null, 2));
+
+    // Display amount breakdown
+    console.log('\n💰 Amount Breakdown:');
+    console.log(`   Requested: ${payment.amount.requested / 1000000} USDC`);
+    console.log(`   Total: ${payment.amount.total / 1000000} USDC`);
+    console.log(`   Fees: ${payment.amount.fees / 1000000} USDC`);
+    console.log(`   Merchant receives: ${payment.amount.net / 1000000} USDC`);
+
+    // Generate and display hosted payment URL
+    const hostedUrl = getHostedPaymentUrl(uiBase, payment.intentId);
+    console.log('\n🔗 Hosted Payment URL:');
+    console.log(`   ${hostedUrl}`);
+    console.log('   👉 Open this URL to complete the payment');
 
     if (payment.x402) {
-      console.log('   x402 Context:', JSON.stringify(payment.x402, null, 2));
+      console.log('\n🌐 x402 Context:', JSON.stringify(payment.x402, null, 2));
     }
 
     console.log('\n');
@@ -66,22 +79,41 @@ async function main() {
     console.log('   In production: const confirmed = await client.confirmPayment(intentId, signature)');
     console.log('\n');
 
-    // 4. Verify receipt (if payment has receipt)
+    // 4. Show settlement info if available
+    if (payment.settlement) {
+      console.log('4. Settlement Information:');
+      console.log(`   Merchant amount: ${payment.settlement.merchant_received / 1000000} USDC`);
+      console.log(`   Treasury fee: ${payment.settlement.treasury_fee / 1000000} USDC`);
+      if (payment.settlement.facilitator_fee) {
+        console.log(`   Facilitator fee: ${payment.settlement.facilitator_fee / 1000000} USDC`);
+      }
+      console.log('\n');
+    }
+
+    // 5. Verify receipt (if payment has receipt)
     if (payment.receipt) {
-      console.log('4. Verifying receipt...');
+      console.log('5. Verifying receipt...');
       const verification = await client.verifyReceipt(payment.receipt.url);
 
       if (verification.ok) {
         console.log('✅ Receipt verified successfully!');
+        console.log('   Receipt URL:', payment.receipt.url);
         console.log('   Computed hash:', verification.computed_hash);
         console.log('   Reported hash:', verification.reported_hash);
-        console.log('   Transaction:', verification.receipt.transaction_signature);
+        console.log('   Transaction signature:', verification.receipt.transaction_signature);
+
+        // Display Solana explorer link
+        const network = config.network.includes('devnet') ? 'devnet' : 'mainnet-beta';
+        const explorerUrl = `https://explorer.solana.com/tx/${verification.receipt.transaction_signature}?cluster=${network}`;
+        console.log(`   🔍 View on Solana Explorer: ${explorerUrl}`);
       } else {
         console.log('❌ Receipt verification failed!');
         console.log('   Error:', verification.error);
       }
     } else {
-      console.log('4. No receipt available yet (payment not completed)');
+      console.log('5. No receipt available yet (payment not completed)');
+      console.log('   👉 Complete the payment at:', hostedUrl);
+      console.log('   💡 After payment, re-run this script to see receipt info');
     }
 
   } catch (error) {

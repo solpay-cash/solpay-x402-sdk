@@ -12,6 +12,7 @@
 require_once __DIR__ . '/../../sdk/php/vendor/autoload.php';
 
 use SolPay\X402\Client;
+use function SolPay\X402\getHostedPaymentUrl;
 
 // Configuration
 $config = [
@@ -22,6 +23,9 @@ $config = [
     'debug' => true
 ];
 
+// UI base URL for hosted payment pages
+$uiBase = getenv('SOLPAY_UI_BASE') ?: 'https://www.solpay.cash';
+
 function main() {
     global $config;
 
@@ -31,28 +35,37 @@ function main() {
     $client = new Client($config);
 
     try {
-        // 1. Create payment intent
+        // 1. Create payment intent (amounts in smallest units: 1 USDC = 1,000,000 micro-USDC)
         echo "1. Creating payment intent...\n";
         $payment = $client->pay([
-            'amount' => 10.0,
+            'amount' => 1000000,  // 1 USDC (6 decimals)
             'asset' => 'USDC',
             'customer_email' => 'customer@example.com',
             'metadata' => [
                 'order_id' => 'order_12345',
                 'product' => 'Premium Subscription'
-            ],
-            'success_url' => 'https://yoursite.com/success',
-            'cancel_url' => 'https://yoursite.com/cancel'
+            ]
         ]);
 
         echo "✅ Payment intent created!\n";
         echo "   Intent ID: {$payment['intent_id']}\n";
-        echo "   Payment URL: {$payment['payment_url']}\n";
         echo "   Status: {$payment['status']}\n";
-        echo "   Amount: " . json_encode($payment['amount'], JSON_PRETTY_PRINT) . "\n";
+
+        // Display amount breakdown
+        echo "\n💰 Amount Breakdown:\n";
+        echo "   Requested: " . ($payment['amount']['requested'] / 1000000) . " USDC\n";
+        echo "   Total: " . ($payment['amount']['total'] / 1000000) . " USDC\n";
+        echo "   Fees: " . ($payment['amount']['fees'] / 1000000) . " USDC\n";
+        echo "   Merchant receives: " . ($payment['amount']['net'] / 1000000) . " USDC\n";
+
+        // Generate and display hosted payment URL
+        $hostedUrl = getHostedPaymentUrl($uiBase, $payment['intent_id']);
+        echo "\n🔗 Hosted Payment URL:\n";
+        echo "   {$hostedUrl}\n";
+        echo "   👉 Open this URL to complete the payment\n";
 
         if (isset($payment['x402'])) {
-            echo "   x402 Context: " . json_encode($payment['x402'], JSON_PRETTY_PRINT) . "\n";
+            echo "\n🌐 x402 Context: " . json_encode($payment['x402'], JSON_PRETTY_PRINT) . "\n";
         }
 
         echo "\n";
@@ -70,22 +83,41 @@ function main() {
         echo "   In production: \$confirmed = \$client->confirmPayment(\$intentId, \$signature)\n";
         echo "\n";
 
-        // 4. Verify receipt (if payment has receipt)
+        // 4. Show settlement info if available
+        if (isset($payment['settlement'])) {
+            echo "4. Settlement Information:\n";
+            echo "   Merchant amount: " . ($payment['settlement']['merchant_received'] / 1000000) . " USDC\n";
+            echo "   Treasury fee: " . ($payment['settlement']['treasury_fee'] / 1000000) . " USDC\n";
+            if (isset($payment['settlement']['facilitator_fee'])) {
+                echo "   Facilitator fee: " . ($payment['settlement']['facilitator_fee'] / 1000000) . " USDC\n";
+            }
+            echo "\n";
+        }
+
+        // 5. Verify receipt (if payment has receipt)
         if (isset($payment['receipt'])) {
-            echo "4. Verifying receipt...\n";
+            echo "5. Verifying receipt...\n";
             $verification = $client->verifyReceipt($payment['receipt']['url']);
 
             if ($verification['ok']) {
                 echo "✅ Receipt verified successfully!\n";
+                echo "   Receipt URL: {$payment['receipt']['url']}\n";
                 echo "   Computed hash: {$verification['computed_hash']}\n";
                 echo "   Reported hash: {$verification['reported_hash']}\n";
-                echo "   Transaction: {$verification['receipt']['transaction_signature']}\n";
+                echo "   Transaction signature: {$verification['receipt']['transaction_signature']}\n";
+
+                // Display Solana explorer link
+                $network = strpos($config['network'], 'devnet') !== false ? 'devnet' : 'mainnet-beta';
+                $explorerUrl = "https://explorer.solana.com/tx/{$verification['receipt']['transaction_signature']}?cluster={$network}";
+                echo "   🔍 View on Solana Explorer: {$explorerUrl}\n";
             } else {
                 echo "❌ Receipt verification failed!\n";
                 echo "   Error: {$verification['error']}\n";
             }
         } else {
-            echo "4. No receipt available yet (payment not completed)\n";
+            echo "5. No receipt available yet (payment not completed)\n";
+            echo "   👉 Complete the payment at: {$hostedUrl}\n";
+            echo "   💡 After payment, re-run this script to see receipt info\n";
         }
 
     } catch (Exception $error) {
