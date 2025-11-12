@@ -8,6 +8,10 @@ This SDK provides a simple, unified interface for integrating SolPay payments wi
 
 Watch the SDK in action: [SolPay x402 SDK Demo](https://www.loom.com/share/27b7acbfe50e485da116c9f238d70443)
 
+## 🚀 Try It Now
+
+Experience a live payment: [Example Payment Intent](https://dev.solpay.cash/pay/pi_1762918284668_445a13fd9612)
+
 ## Features
 
 - ✅ Create payment intents with dynamic amounts
